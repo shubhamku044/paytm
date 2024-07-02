@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"server/api/controllers"
+	"server/api/services"
 	"server/internal/database"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,11 @@ func main() {
 	db := database.ConnectDB()
 
 	v1 := r.Group("/api/v1")
+
+	// services
+	userServices := &services.UserServices{}
+	userServices.InitUserServices(db)
+
 	{
 		v1.GET("/health", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
@@ -32,9 +38,8 @@ func main() {
 			})
 		})
 
-		userController := controllers.UserController{}
-		userController.InitUserControllerRoutes(v1)
-
+		userController := &controllers.UserController{}
+		userController.InitUserControllerRoutes(v1, *userServices)
 	}
 
 	r.Run(":8080")
