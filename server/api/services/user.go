@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"server/api/models"
 	"server/api/utils"
 
@@ -30,4 +31,31 @@ func (u *UserServices) CreateUserService(user *models.User) (*models.User, error
 		return nil, err
 	}
 	return user, nil
+}
+
+func (u *UserServices) GetUserByUsername(username string) (*models.User, error) {
+	fmt.Println(username)
+	var user models.User
+	if err := u.db.Find(&user, "user_name = ?", username).Error; err != nil {
+		return nil, err
+	}
+
+	if user.UserName == "" {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	return &user, nil
+}
+
+func (u *UserServices) GetUserByID(id string) (*models.User, error) {
+	var user models.User
+	if err := u.db.Find(&user, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+
+	if user.ID == "" {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	return &user, nil
 }

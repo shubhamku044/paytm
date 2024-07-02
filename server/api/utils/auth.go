@@ -85,7 +85,7 @@ func ValidateUser(
 	return true, ""
 }
 
-func ComparePasswords(hashedPassword string, password string) error {
+func ComparePassword(password, hashedPassword string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 
 	if err != nil {
