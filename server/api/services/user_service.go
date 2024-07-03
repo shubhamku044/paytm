@@ -45,7 +45,6 @@ func (u *UserServices) CreateUserService(user *models.User) (*models.User, error
 }
 
 func (u *UserServices) GetUserByUsername(username string) (*models.User, error) {
-	fmt.Println(username)
 	var user models.User
 	if err := u.db.Find(&user, "user_name = ?", username).Error; err != nil {
 		return nil, err
