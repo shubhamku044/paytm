@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"server/api/controllers"
+	"server/api/routes"
 	"server/api/services"
 	"server/internal/database"
 
@@ -29,7 +30,17 @@ func main() {
 
 	// services
 	userServices := &services.UserServices{}
-	userServices.InitUserServices(db)
+	userServices.InitServices(db)
+
+	accountServices := &services.AccountServices{}
+	accountServices.InitServices(db)
+
+	// controllers
+	userController := &controllers.UserController{}
+	userController.InitController(userServices)
+
+	accountController := &controllers.AccountController{}
+	accountController.InitController(accountServices)
 
 	{
 		v1.GET("/health", func(c *gin.Context) {
@@ -38,8 +49,11 @@ func main() {
 			})
 		})
 
-		userController := &controllers.UserController{}
-		userController.InitUserControllerRoutes(v1, *userServices)
+		userRoutes := &routes.UserRoutes{}
+		userRoutes.InitRoutes(v1, userController)
+
+		accountRoutes := &routes.AccountRoutes{}
+		accountRoutes.InitRoutes(v1, accountController)
 	}
 
 	r.Run(":8080")

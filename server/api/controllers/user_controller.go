@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"server/api/middleware"
 	"server/api/models"
 	"server/api/services"
 	"server/api/utils"
@@ -15,19 +14,9 @@ type UserController struct {
 	userService *services.UserServices
 }
 
-func (u *UserController) userRoutes(groupRouter *gin.RouterGroup) {
-	router := groupRouter.Group("/user")
-	{
-		router.POST("/signup", u.SignUp())
-		router.POST("/signin", u.SignIn())
-		router.Use(middleware.CheckMiddleware)
-		router.GET("/:username", u.GetUser())
-	}
-}
-
-func (u *UserController) InitUserControllerRoutes(groupRouter *gin.RouterGroup, userServices services.UserServices) {
-	u.userRoutes(groupRouter)
-	u.userService = &userServices
+func (u *UserController) InitController(userServices *services.UserServices) *UserController {
+	u.userService = userServices
+	return u
 }
 
 func (u *UserController) SignUp() gin.HandlerFunc {
@@ -63,14 +52,7 @@ func (u *UserController) SignUp() gin.HandlerFunc {
 			return
 		}
 
-		userExists, err := u.userService.GetUserByUsername(user.UserName)
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": err.Error(),
-			})
-			return
-		}
+		userExists, _ := u.userService.GetUserByUsername(user.UserName)
 
 		if userExists != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -187,7 +169,13 @@ func (u *UserController) GetUser() gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, gin.H{
 			"message": "User found",
-			"user":    user,
+			"data": gin.H{
+				"id":        user.ID,
+				"firstName": user.FirstName,
+				"lastName":  user.LastName,
+				"userName":  user.UserName,
+				"createdAt": user.CreatedAt,
+			},
 		})
 	}
 }
