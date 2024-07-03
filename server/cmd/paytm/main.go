@@ -14,10 +14,24 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
+	var envFilePath string
+
+	if len(os.Args) > 1 {
+		envFilePath = os.Args[1]
+	} else {
+		envFilePath = ".env"
+	}
+
+	err := godotenv.Load(envFilePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading .env file")
+		fmt.Fprintf(os.Stderr, "Error loading %s file", envFilePath)
 		os.Exit(1)
+	}
+
+	envMode := os.Getenv("ENV_MODE")
+
+	if envMode == "production" {
+		gin.SetMode(gin.ReleaseMode)
 	}
 
 	r := gin.Default()

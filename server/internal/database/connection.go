@@ -11,11 +11,29 @@ import (
 
 func ConnectDB() *gorm.DB {
 	dbUrl := os.Getenv("DB_URL")
+	envMode := os.Getenv("ENV_MODE")
 
-	database, err := gorm.Open(mysql.Open(dbUrl), &gorm.Config{
-		Logger:                 logger.Default.LogMode(logger.Info),
-		SkipDefaultTransaction: true,
-	})
+	var database *gorm.DB
+	var err error
+
+	switch envMode {
+	case "development":
+		database, err = gorm.Open(mysql.Open(dbUrl), &gorm.Config{
+			Logger:                 logger.Default.LogMode(logger.Info),
+			SkipDefaultTransaction: true,
+		})
+
+	case "production":
+		database, err = gorm.Open(mysql.Open(dbUrl), &gorm.Config{
+			SkipDefaultTransaction: true,
+		})
+
+	default:
+		database, err = gorm.Open(mysql.Open(dbUrl), &gorm.Config{
+			Logger:                 logger.Default.LogMode(logger.Info),
+			SkipDefaultTransaction: true,
+		})
+	}
 
 	if err != nil {
 		fmt.Println(err)
