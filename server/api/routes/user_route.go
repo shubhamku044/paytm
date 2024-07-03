@@ -19,5 +19,6 @@ func (r *UserRoutes) InitRoutes(groupRouter *gin.RouterGroup, userController *co
 		router.POST("/signin", r.userController.SignIn())
 		router.Use(middleware.CheckMiddleware)
 		router.GET("/:username", r.userController.GetUser())
+		router.GET("/accounts", r.userController.GetUserAccounts())
 	}
 }

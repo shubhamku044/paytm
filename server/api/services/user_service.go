@@ -2,14 +2,24 @@ package services
 
 import (
 	"fmt"
+	"regexp"
 	"server/api/models"
 	"server/api/utils"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type UserServices struct {
 	db *gorm.DB
+}
+
+type user struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+	UserName  string `json:"userName"`
 }
 
 func (u *UserServices) InitServices(db *gorm.DB) {
@@ -81,4 +91,31 @@ func (u *UserServices) GetUserAccountDetails(userId string) (*models.Account, er
 	}
 
 	return &account, nil
+}
+
+func (u *UserServices) GetAllUsers() []user {
+	users := []user{}
+	return users
+}
+
+func (u *UserServices) GetAllUsersExcept(username string, filter ...string) ([]user, error) {
+	users := []user{}
+	query := u.db.Model(&users).Where("user_name != ?", username)
+
+	if len(filter) > 0 {
+		escapedFilters := make([]string, len(filter))
+		for i, f := range filter {
+			escapedFilters[i] = regexp.QuoteMeta(f)
+		}
+
+		filterPattern := strings.Join(escapedFilters, "|")
+
+		query = query.Where("first_name REGEXP ? OR last_name REGEXP ? OR user_name REGEXP ?", filterPattern, filterPattern, filterPattern)
+	}
+
+	if err := query.Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }

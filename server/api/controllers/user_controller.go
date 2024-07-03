@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"server/api/models"
 	"server/api/services"
@@ -176,6 +177,29 @@ func (u *UserController) GetUser() gin.HandlerFunc {
 				"userName":  user.UserName,
 				"createdAt": user.CreatedAt,
 			},
+		})
+	}
+}
+
+func (u *UserController) GetUserAccounts() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		username := c.Param("username")
+		filter := c.Query("filter")
+
+		fmt.Println("Filter string  -> ", filter)
+
+		allUsers, err := u.userService.GetAllUsersExcept(username, filter)
+
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Users found",
+			"data":    allUsers,
 		})
 	}
 }
