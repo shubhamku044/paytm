@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"server/api/models"
 	"server/api/services"
@@ -185,8 +184,6 @@ func (u *UserController) GetUserAccounts() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username := c.Param("username")
 		filter := c.Query("filter")
-
-		fmt.Println("Filter string  -> ", filter)
 
 		allUsers, err := u.userService.GetAllUsersExcept(username, filter)
 

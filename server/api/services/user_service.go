@@ -102,9 +102,20 @@ func (u *UserServices) GetAllUsersExcept(username string, filter ...string) ([]u
 	users := []user{}
 	query := u.db.Model(&users).Where("user_name != ?", username)
 
-	if len(filter) > 0 {
-		escapedFilters := make([]string, len(filter))
-		for i, f := range filter {
+	fmt.Println("Filter: ", filter)
+	fmt.Println("Filter Length: ", len(filter))
+
+	nonEmptyFilter := make([]string, 0)
+
+	for _, f := range filter {
+		if f != "" {
+			nonEmptyFilter = append(nonEmptyFilter, f)
+		}
+	}
+
+	if len(nonEmptyFilter) > 0 {
+		escapedFilters := make([]string, len(nonEmptyFilter))
+		for i, f := range nonEmptyFilter {
 			escapedFilters[i] = regexp.QuoteMeta(f)
 		}
 
